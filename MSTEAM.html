@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>MSTEAM</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial;
+    background:#1b2838;
+    color:white;
+}
+
+.topbar{
+    background:#171a21;
+    padding:15px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    font-size:30px;
+    color:#66c0f4;
+    font-weight:bold;
+}
+
+.admin-btn{
+    background:#66c0f4;
+    border:none;
+    padding:10px 20px;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.games{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+    padding:20px;
+}
+
+.game{
+    background:#2a475e;
+    width:250px;
+    padding:15px;
+    border-radius:10px;
+}
+
+.game img{
+    width:100%;
+    border-radius:10px;
+}
+
+.install{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    background:#66c0f4;
+    border:none;
+    border-radius:5px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.delete-btn{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    background:red;
+    color:white;
+    border:none;
+    border-radius:5px;
+    font-weight:bold;
+    cursor:pointer;
+    display:none;
+}
+
+.admin-panel{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:#171a21;
+    padding:20px;
+    border-radius:10px;
+    width:300px;
+    display:none;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    background:#2a475e;
+    border:none;
+    color:white;
+    box-sizing:border-box;
+}
+
+.add-game{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    background:lime;
+    border:none;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+
+<div class="logo">
+MSteam
+</div>
+
+<button class="admin-btn" onclick="adminLogin()">
+ADMIN
+</button>
+
+</div>
+
+<div class="games" id="games"></div>
+
+<div class="admin-panel" id="panel">
+
+<h2>ADMIN PANEL</h2>
+
+<input type="text" id="name" placeholder="Game Name">
+
+<input type="text" id="image" placeholder="Image URL">
+
+<input type="text" id="link" placeholder="Download Link">
+
+<button class="add-game" onclick="addGame()">
+ADD GAME
+</button>
+
+</div>
+
+<script>
+
+let adminMode = false;
+
+let games = JSON.parse(localStorage.getItem("games")) || [];
+
+function saveGames(){
+
+    localStorage.setItem(
+        "games",
+        JSON.stringify(games)
+    );
+}
+
+function renderGames(){
+
+    let gamesDiv =
+    document.getElementById("games");
+
+    gamesDiv.innerHTML = "";
+
+    games.forEach((game,index)=>{
+
+        let div =
+        document.createElement("div");
+
+        div.className = "game";
+
+        div.innerHTML = `
+
+        <img src="${game.image}">
+
+        <h2>${game.name}</h2>
+
+        <p>Custom Game</p>
+
+        <button class="install"
+        onclick="window.open('${game.link}')">
+        INSTALL
+        </button>
+
+        <button class="delete-btn"
+        onclick="deleteGame(${index})">
+        DELETE
+        </button>
+
+        `;
+
+        gamesDiv.appendChild(div);
+
+    });
+
+    updateDeleteButtons();
+}
+
+function adminLogin(){
+
+    let code = prompt(
+        "ENTER ADMIN CODE"
+    );
+
+    if(code === "Masic7878"){
+
+        adminMode = true;
+
+        alert("ADMIN ENABLED");
+
+        document.getElementById(
+            "panel"
+        ).style.display = "block";
+
+        updateDeleteButtons();
+
+    }else{
+
+        alert("WRONG CODE");
+
+    }
+}
+
+function addGame(){
+
+    if(!adminMode) return;
+
+    let name =
+    document.getElementById("name").value;
+
+    let image =
+    document.getElementById("image").value;
+
+    let link =
+    document.getElementById("link").value;
+
+    if(name === "" ||
+       image === "" ||
+       link === ""){
+
+       alert("Fill all fields");
+
+       return;
+    }
+
+    games.push({
+
+        name:name,
+        image:image,
+        link:link
+
+    });
+
+    saveGames();
+
+    renderGames();
+
+    document.getElementById("name").value = "";
+    document.getElementById("image").value = "";
+    document.getElementById("link").value = "";
+}
+
+function deleteGame(index){
+
+    if(!adminMode) return;
+
+    games.splice(index,1);
+
+    saveGames();
+
+    renderGames();
+}
+
+function updateDeleteButtons(){
+
+    let buttons =
+    document.querySelectorAll(".delete-btn");
+
+    buttons.forEach(btn=>{
+
+        btn.style.display =
+        adminMode ? "block" : "none";
+
+    });
+}
+
+renderGames();
+
+</script>
+
+</body>
+</html>
